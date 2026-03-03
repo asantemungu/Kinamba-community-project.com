@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kinamba Community Project | Kigali, Rwanda</title>
+<link rel="icon" type="image/png" href="https://images.unsplash.com/photo-1509099836639-18ba1795216d?w=64&h=64&fit=crop&crop=faces">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ── CSS VARIABLES ── */
+:root {
+  --green: #1a6b3c;
+  --green-light: #2d9e5f;
+  --green-pale: #e8f5ee;
+  --gold: #c9860a;
+  --gold-light: #f5b942;
+  --red: #c0392b;
+  --sky: #1e5f8e;
+  --cream: #fdf8f0;
+  --dark: #1a1a2e;
+  --text: #2c3e50;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --white: #ffffff;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Outfit',sans-serif;color:var(--text);background:var(--white);overflow-x:hidden;}
+
+/* ═══════════════════════════════════════════════════
+   AUTH OVERLAY — covers entire screen
+═══════════════════════════════════════════════════ */
+#auth-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: linear-gradient(135deg, #0a3d1f 0%, #1a6b3c 45%, #1e5f8e 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* decorative background pattern */
+#auth-overlay::before {
+  content:'';
+  position:absolute;inset:0;
+  background-image:
+    radial-gradient(circle at 15% 25%, rgba(255,255,255,0.06) 0%, transparent 45%),
+    radial-gradient(circle at 85% 75%, rgba(201,134,10,0.18) 0%, transparent 45%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.auth-card {
+  background: rgba(255,255,255,0.97);
+  border-radius: 24px;
+  padding: 2.8rem 2.5rem;
+  width: 420px;
+  max-width: 94vw;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.35);
+  position: relative;
+  animation: authSlideUp 0.6s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes authSlideUp {
+  from{opacity:0;transform:translateY(40px) scale(0.97);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+
+.auth-logo {
+  text-align: center;
+  margin-bottom: 1.8rem;
+}
+.auth-logo-icon {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--green), var(--green-light));
+  display: inline-flex; align-items: center; justify-content: center;
+  color: white; font-family: 'Playfair Display', serif;
+  font-size: 1.6rem; font-weight: 900;
+  box-shadow: 0 6px 24px rgba(26,107,60,0.4);
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+}
+.auth-logo-icon img { width:100%;height:100%;object-fit:cover;display:block; }
+.auth-logo h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem; font-weight: 700; color: var(--dark);
+}
+.auth-logo p { font-size: 0.75rem; color: var(--muted); margin-top: 0.2rem; }
+
+/* tab switcher */
+.auth-tabs {
+  display: flex; border-radius: 10px; overflow: hidden;
+  border: 2px solid var(--border); margin-bottom: 1.8rem;
+}
+.auth-tab {
+  flex: 1; padding: 0.6rem; text-align: center;
+  font-weight: 600; font-size: 0.85rem; cursor: pointer;
+  border: none; background: transparent; color: var(--muted);
+  transition: all 0.2s; font-family: 'Outfit', sans-serif;
+}
+.auth-tab.active {
+  background: var(--green); color: white;
+}
+
+/* form */
+.auth-form { display: none; }
+.auth-form.active { display: block; }
+
+.auth-field {
+  margin-bottom: 1rem;
+}
+.auth-field label {
+  display: block; font-size: 0.72rem; font-weight: 600;
+  color: var(--text); text-transform: uppercase;
+  letter-spacing: 0.07em; margin-bottom: 0.35rem;
+}
+.auth-field input {
+  width: 100%; border: 1.5px solid var(--border); border-radius: 9px;
+  padding: 0.65rem 0.9rem; font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem; outline: none; transition: border 0.2s, box-shadow 0.2s;
+  color: var(--dark);
+}
+.auth-field input:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(26,107,60,0.1);
+}
+
+.auth-error {
+  background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px;
+  color: #b91c1c; font-size: 0.8rem; padding: 0.6rem 0.85rem;
+  margin-bottom: 1rem; display: none;
+}
+.auth-error.show { display: block; }
+
+.auth-success {
+  background: var(--green-pale); border: 1px solid #86efac; border-radius: 8px;
+  color: var(--green); font-size: 0.8rem; padding: 0.6rem 0.85rem;
+  margin-bottom: 1rem; display: none;
+}
+.auth-success.show { display: block; }
+
+.auth-btn {
+  width: 100%; background: var(--green); color: white;
+  border: none; padding: 0.85rem; border-radius: 10px;
+  font-size: 0.95rem; font-weight: 600; cursor: pointer;
+  font-family: 'Outfit', sans-serif; transition: all 0.2s;
+  margin-top: 0.25rem;
+}
+.auth-btn:hover { background: var(--green-light); transform: translateY(-1px); }
+.auth-btn:active { transform: translateY(0); }
+
+.auth-switch {
+  text-align: center; font-size: 0.78rem; color: var(--muted);
+  margin-top: 1.2rem;
+}
+.auth-switch a {
+  color: var(--green); font-weight: 600; cursor: pointer;
+  text-decoration: underline;
+}
+
+/* ═══════════════════════════════════════════════════
+   LOADING SCREEN
+═══════════════════════════════════════════════════ */
+#loading-screen {
+  position: fixed; inset: 0; z-index: 9998;
+  background: linear-gradient(135deg, #0a3d1f 0%, #1a6b3c 50%, #2d9e5f 100%);
+  display: none;
+  flex-direction: column; align-items: center; justify-content: center;
+  gap: 2rem;
+}
+
+#loading-screen::before {
+  content:'';
+  position:absolute;inset:0;
+  background-image: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.06) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(201,134,10,0.15) 0%, transparent 50%);
+  pointer-events:none;
+}
+
+.loading-logo {
+  text-align: center; z-index: 1;
+  animation: loadFadeIn 0.8s ease both;
+}
+@keyframes loadFadeIn { from{opacity:0;transform:scale(0.9);} to{opacity:1;transform:scale(1);} }
+
+.loading-logo-icon {
+  width: 88px; height: 88px; border-radius: 50%;
+  background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);
+  border: 3px solid rgba(255,255,255,0.3);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif; font-size: 2.2rem;
+  font-weight: 900; color: white; margin-bottom: 1rem;
+  overflow: hidden;
+}
+.loading-logo-icon img { width:100%;height:100%;object-fit:cover; }
+
+.loading-title {
+  font-family: 'Playfair Display', serif; font-size: 2rem;
+  font-weight: 900; color: white; line-height: 1.2;
+}
+.loading-title span { color: var(--gold-light); }
+.loading-sub { color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-top: 0.3rem; }
+
+/* progress bar */
+.loading-bar-wrap {
+  width: 320px; max-width: 85vw; z-index: 1;
+  animation: loadFadeIn 0.8s 0.3s ease both;
+}
+.loading-bar-bg {
+  background: rgba(255,255,255,0.2); border-radius: 20px; height: 6px; overflow: hidden;
+}
+.loading-bar-fill {
+  height: 100%; background: var(--gold-light); border-radius: 20px;
+  width: 0%; transition: width 0.1s linear;
+}
+.loading-pct {
+  text-align: right; font-size: 0.75rem; color: rgba(255,255,255,0.6);
+  margin-top: 0.4rem;
+}
+
+/* continue / not now buttons */
+.loading-actions {
+  display: none; flex-direction: column; align-items: center; gap: 0.75rem;
+  z-index: 1; animation: authSlideUp 0.5s ease both;
+}
+.loading-continue-btn {
+  background: var(--gold); color: white; border: none;
+  padding: 0.95rem 3rem; border-radius: 30px;
+  font-size: 1rem; font-weight: 700; cursor: pointer;
+  font-family: 'Outfit', sans-serif; transition: all 0.2s;
+  box-shadow: 0 6px 20px rgba(201,134,10,0.4);
+}
+.loading-continue-btn:hover { background: var(--gold-light); transform: translateY(-2px); }
+
+.loading-notnow-btn {
+  background: transparent; color: rgba(255,255,255,0.55); border: none;
+  font-size: 0.82rem; cursor: pointer; font-family: 'Outfit', sans-serif;
+  text-decoration: underline; transition: color 0.2s;
+}
+.loading-notnow-btn:hover { color: rgba(255,255,255,0.85); }
+
+.loading-msg {
+  color: rgba(255,255,255,0.6); font-size: 0.78rem; z-index:1;
+  animation: loadFadeIn 0.8s 0.5s ease both;
+}
+
+/* ── PORTFOLIO MAIN (hidden until loaded) ── */
+#main-site { display: none; }
+#main-site.visible { display: block; }
+
+/* ── NAVBAR ── */
+.navbar{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  background:rgba(255,255,255,0.97);backdrop-filter:blur(12px);
+  border-bottom:2px solid var(--green);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 2rem;height:70px;
+  box-shadow:0 2px 20px rgba(0,0,0,0.08);
+}
+.nav-logo{display:flex;align-items:center;gap:0.75rem;text-decoration:none;}
+.nav-logo-icon{
+  width:44px;height:44px;border-radius:50%;
+  background:linear-gradient(135deg,var(--green),var(--green-light));
+  display:flex;align-items:center;justify-content:center;
+  color:white;font-size:1.2rem;font-weight:900;
+  font-family:'Playfair Display',serif;
+  overflow:hidden;border:2px solid var(--green);
+  box-shadow:0 2px 10px rgba(26,107,60,0.35);flex-shrink:0;
+}
+.nav-logo-icon img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block;}
+.nav-logo-text{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--green);line-height:1.1;}
+.nav-logo-sub{font-size:0.65rem;color:var(--muted);font-weight:400;}
+.nav-links{display:flex;gap:0;align-items:center;}
+.nav-links a{color:var(--text);text-decoration:none;font-size:0.82rem;font-weight:500;padding:0.5rem 0.85rem;border-radius:4px;transition:all 0.2s;letter-spacing:0.02em;}
+.nav-links a:hover{color:var(--green);background:var(--green-pale);}
+.nav-donate{background:var(--gold);color:white!important;padding:0.5rem 1.2rem!important;border-radius:20px!important;font-weight:600!important;}
+.nav-donate:hover{background:var(--gold-light)!important;color:white!important;}
+/* logout button in nav */
+.nav-logout{
+  background:transparent;border:1.5px solid var(--border);color:var(--muted);
+  padding:0.4rem 0.9rem;border-radius:20px;font-size:0.75rem;font-weight:600;
+  cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;margin-left:0.5rem;
+}
+.nav-logout:hover{border-color:var(--red);color:var(--red);}
+.nav-toggle{display:none;background:none;border:none;cursor:pointer;font-size:1.5rem;color:var(--green);}
+
+/* ── HERO ── */
+.hero{min-height:100vh;position:relative;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0a3d1f 0%,#1a6b3c 40%,#2d9e5f 70%,#1e5f8e 100%);overflow:hidden;padding-top:70px;}
+.hero-bg-pattern{position:absolute;inset:0;background-image:radial-gradient(circle at 20% 30%, rgba(255,255,255,0.06) 0%, transparent 50%),radial-gradient(circle at 80% 70%, rgba(201,134,10,0.15) 0%, transparent 50%),url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
+.hero-content{text-align:center;z-index:2;max-width:800px;padding:3rem 2rem;animation:fadeUp 1s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+.hero-founded{display:inline-block;background:rgba(201,134,10,0.3);border:1px solid rgba(201,134,10,0.5);color:#f5d08a;font-size:0.75rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;padding:0.4rem 1.2rem;border-radius:20px;margin-bottom:1.5rem;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,7vw,5rem);font-weight:900;color:white;line-height:1.1;margin-bottom:0.5rem;}
+.hero h1 span{color:var(--gold-light);}
+.hero-subtitle{font-size:clamp(1rem,2.5vw,1.3rem);color:rgba(255,255,255,0.85);font-weight:300;margin-bottom:0.75rem;}
+.hero-loc{color:rgba(255,255,255,0.65);font-size:0.85rem;margin-bottom:2.5rem;}
+.hero-loc::before{content:'📍 ';}
+.hero-stats{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;margin-bottom:2.5rem;}
+.hero-stat{background:rgba(255,255,255,0.12);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.2);border-radius:12px;padding:1rem 1.5rem;text-align:center;min-width:110px;}
+.hero-stat-num{font-size:1.8rem;font-weight:700;color:var(--gold-light);font-family:'Playfair Display',serif;}
+.hero-stat-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.12em;color:rgba(255,255,255,0.7);}
+.hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+.btn{display:inline-block;padding:0.9rem 2rem;border-radius:30px;font-weight:600;font-size:0.9rem;text-decoration:none;transition:all 0.25s;border:2px solid transparent;cursor:pointer;}
+.btn-primary{background:var(--gold);color:white;border-color:var(--gold);}
+.btn-primary:hover{background:var(--gold-light);border-color:var(--gold-light);transform:translateY(-2px);}
+.btn-outline{background:transparent;color:white;border-color:rgba(255,255,255,0.7);}
+.btn-outline:hover{background:white;color:var(--green);}
+.hero-scroll{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);color:rgba(255,255,255,0.5);font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;animation:bounce 2s ease-in-out infinite;}
+@keyframes bounce{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(-8px);}}
+
+/* ── SECTIONS ── */
+section{padding:5rem 2rem;}
+.container{max-width:1100px;margin:0 auto;}
+.section-label{font-size:0.7rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--green);margin-bottom:0.5rem;}
+.section-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;color:var(--dark);margin-bottom:1rem;line-height:1.2;}
+.section-title span{color:var(--green);}
+.section-desc{font-size:1rem;color:var(--muted);line-height:1.8;max-width:680px;}
+
+/* ── ABOUT ── */
+#about{background:var(--cream);}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;margin-top:3rem;}
+.about-image-wrap{position:relative;}
+.about-image-wrap img{width:100%;border-radius:16px;object-fit:cover;height:450px;box-shadow:0 20px 60px rgba(0,0,0,0.15);}
+.about-image-badge{position:absolute;bottom:-20px;right:-20px;background:var(--green);color:white;padding:1.2rem 1.5rem;border-radius:12px;box-shadow:0 8px 25px rgba(26,107,60,0.4);text-align:center;}
+.badge-year{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;}
+.badge-text{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.85;}
+.about-text .section-desc{margin-bottom:1.5rem;}
+.about-list{list-style:none;margin:1.5rem 0;display:flex;flex-direction:column;gap:0.75rem;}
+.about-list li{display:flex;align-items:flex-start;gap:0.75rem;font-size:0.92rem;color:var(--text);line-height:1.5;}
+.about-list li::before{content:'✓';background:var(--green-pale);color:var(--green);width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0;margin-top:1px;}
+.founder-card{display:flex;align-items:center;gap:1rem;background:white;border:2px solid var(--green-pale);border-radius:12px;padding:1rem 1.25rem;margin-top:1.5rem;}
+.founder-avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green-light));display:flex;align-items:center;justify-content:center;color:white;font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;flex-shrink:0;}
+.founder-name{font-weight:600;font-size:0.9rem;color:var(--dark);}
+.founder-role{font-size:0.75rem;color:var(--green);font-weight:500;}
+.founder-bio{font-size:0.78rem;color:var(--muted);line-height:1.5;margin-top:0.25rem;}
+
+/* ── TIMELINE ── */
+#timeline{background:white;}
+.timeline-wrap{position:relative;margin-top:3rem;padding-left:2rem;}
+.timeline-wrap::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(to bottom,var(--green),var(--gold),var(--sky));border-radius:2px;}
+.timeline-item{position:relative;padding:0 0 2.5rem 2.5rem;animation:fadeUp 0.6s ease both;}
+.timeline-item::before{content:'';position:absolute;left:-7px;top:6px;width:17px;height:17px;border-radius:50%;border:3px solid white;background:var(--green);box-shadow:0 0 0 3px var(--green-pale);}
+.timeline-year{display:inline-block;background:var(--green);color:white;font-size:0.7rem;font-weight:700;letter-spacing:0.12em;padding:3px 10px;border-radius:10px;margin-bottom:0.5rem;}
+.timeline-title{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:var(--dark);margin-bottom:0.4rem;}
+.timeline-text{font-size:0.88rem;color:var(--muted);line-height:1.7;}
+.tl-gold::before{background:var(--gold)!important;box-shadow:0 0 0 3px #fdf2dc!important;}
+.tl-gold .timeline-year{background:var(--gold);}
+.tl-sky::before{background:var(--sky)!important;box-shadow:0 0 0 3px #dbeeff!important;}
+.tl-sky .timeline-year{background:var(--sky);}
+
+/* ── PROGRAMS ── */
+#programs{background:var(--cream);}
+.programs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1.5rem;margin-top:3rem;}
+.program-card{background:white;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.07);transition:transform 0.3s,box-shadow 0.3s;border:1px solid var(--border);}
+.program-card:hover{transform:translateY(-6px);box-shadow:0 12px 40px rgba(0,0,0,0.12);}
+.program-img{width:100%;height:160px;object-fit:cover;}
+.program-body{padding:1.25rem;}
+.program-icon{font-size:1.8rem;margin-bottom:0.5rem;}
+.program-level{font-size:0.65rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--green);margin-bottom:0.3rem;}
+.program-title{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--dark);margin-bottom:0.5rem;}
+.program-desc{font-size:0.82rem;color:var(--muted);line-height:1.6;}
+.program-count{display:inline-block;background:var(--green-pale);color:var(--green);font-size:0.7rem;font-weight:600;padding:3px 10px;border-radius:12px;margin-top:0.75rem;}
+
+/* ── GALLERY ── */
+#gallery{background:var(--dark);}
+#gallery .section-title{color:white;}
+#gallery .section-label{color:var(--gold-light);}
+.gallery-grid{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:auto;gap:0.75rem;margin-top:2.5rem;}
+.gallery-item{border-radius:10px;overflow:hidden;position:relative;cursor:pointer;background:#2d2d2d;}
+.gallery-item:nth-child(1){grid-column:span 2;grid-row:span 2;}
+.gallery-item:nth-child(5){grid-column:span 2;}
+.gallery-item img{width:100%;height:100%;object-fit:cover;min-height:180px;transition:transform 0.4s,filter 0.4s;display:block;}
+.gallery-item:hover img{transform:scale(1.05);filter:brightness(0.8);}
+.gallery-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.6),transparent);opacity:0;transition:opacity 0.3s;display:flex;align-items:flex-end;padding:1rem;}
+.gallery-item:hover .gallery-overlay{opacity:1;}
+.gallery-overlay span{color:white;font-size:0.8rem;font-weight:500;}
+
+/* ── VIDEOS ── */
+#videos{background:#0f1f14;}
+#videos .section-title{color:white;}
+#videos .section-label{color:var(--gold-light);}
+#videos .section-desc{color:rgba(255,255,255,0.6);}
+.videos-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;margin-top:2.5rem;}
+.video-card{border-radius:14px;overflow:hidden;background:#1a2e1f;border:1px solid rgba(255,255,255,0.08);}
+.video-thumb{position:relative;width:100%;padding-bottom:56.25%;background:linear-gradient(135deg,#0a3d1f,#1a6b3c);}
+.video-thumb iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;}
+.video-play-fallback{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.75rem;cursor:pointer;text-decoration:none;}
+.video-play-btn{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,0.2);backdrop-filter:blur(6px);border:2px solid rgba(255,255,255,0.4);display:flex;align-items:center;justify-content:center;font-size:1.5rem;transition:all 0.2s;}
+.video-play-fallback:hover .video-play-btn{background:var(--gold);border-color:var(--gold);transform:scale(1.1);}
+.video-play-label{color:rgba(255,255,255,0.8);font-size:0.75rem;letter-spacing:0.08em;}
+.video-info{padding:1rem 1.25rem;}
+.video-tag{font-size:0.65rem;font-weight:600;color:var(--gold-light);text-transform:uppercase;letter-spacing:0.12em;}
+.video-title{color:white;font-family:'Playfair Display',serif;font-size:1rem;font-weight:600;margin-top:0.25rem;line-height:1.3;}
+.video-desc{color:rgba(255,255,255,0.5);font-size:0.78rem;margin-top:0.35rem;line-height:1.5;}
+
+/* ── LOCATION ── */
+#location{background:white;}
+.location-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start;margin-top:3rem;}
+.map-wrap{border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.12);height:420px;border:3px solid var(--green-pale);}
+.map-wrap iframe{width:100%;height:100%;border:none;display:block;}
+.location-details{display:flex;flex-direction:column;gap:1.25rem;}
+.loc-card{background:var(--cream);border-radius:12px;padding:1.25rem;border-left:4px solid var(--green);}
+.loc-label{font-size:0.65rem;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:var(--green);margin-bottom:0.35rem;}
+.loc-value{font-size:0.92rem;color:var(--dark);font-weight:500;line-height:1.5;}
+.loc-sub{font-size:0.78rem;color:var(--muted);margin-top:0.2rem;}
+.directions-btn{display:flex;align-items:center;justify-content:center;gap:0.5rem;background:var(--green);color:white;text-decoration:none;padding:0.85rem 1.5rem;border-radius:10px;font-weight:600;font-size:0.88rem;transition:all 0.2s;margin-top:0.5rem;}
+.directions-btn:hover{background:var(--green-light);transform:translateY(-2px);}
+
+/* ── IMPACT ── */
+#impact{background:linear-gradient(135deg,var(--green) 0%,#0a3d1f 100%);color:white;}
+#impact .section-label{color:var(--gold-light);}
+#impact .section-title{color:white;}
+.impact-numbers{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.5rem;margin-top:3rem;}
+.impact-item{text-align:center;padding:2rem 1rem;background:rgba(255,255,255,0.08);border-radius:16px;border:1px solid rgba(255,255,255,0.12);transition:background 0.2s;}
+.impact-item:hover{background:rgba(255,255,255,0.13);}
+.impact-num{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:900;color:var(--gold-light);line-height:1;margin-bottom:0.4rem;}
+.impact-label{font-size:0.8rem;color:rgba(255,255,255,0.75);font-weight:400;line-height:1.4;}
+
+/* ── DATABASE ── */
+#database{background:var(--cream);}
+.db-tabs{display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:1.5rem;margin-bottom:2rem;}
+.db-tab{padding:0.5rem 1.2rem;border-radius:20px;font-size:0.82rem;font-weight:600;border:2px solid var(--border);background:white;color:var(--muted);cursor:pointer;transition:all 0.2s;}
+.db-tab.active{background:var(--green);color:white;border-color:var(--green);}
+.db-tab:hover:not(.active){border-color:var(--green);color:var(--green);}
+.db-toolbar{display:flex;gap:0.75rem;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;}
+.db-search{flex:1;min-width:200px;border:1.5px solid var(--border);border-radius:8px;padding:0.55rem 1rem;font-family:'Outfit',sans-serif;font-size:0.85rem;outline:none;transition:border 0.2s;}
+.db-search:focus{border-color:var(--green);}
+.db-btn{padding:0.55rem 1.2rem;border-radius:8px;font-size:0.8rem;font-weight:600;border:none;cursor:pointer;transition:all 0.15s;font-family:'Outfit',sans-serif;}
+.db-btn-add{background:var(--green);color:white;}
+.db-btn-add:hover{background:var(--green-light);}
+.db-btn-export{background:var(--gold);color:white;}
+.db-btn-export:hover{background:var(--gold-light);}
+.db-table-wrap{overflow-x:auto;background:white;border-radius:12px;box-shadow:0 2px 15px rgba(0,0,0,0.06);border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+thead{background:var(--green);}
+thead th{color:white;padding:0.8rem 1rem;text-align:left;font-weight:600;font-size:0.75rem;letter-spacing:0.05em;text-transform:uppercase;white-space:nowrap;}
+tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s;}
+tbody tr:hover{background:var(--green-pale);}
+tbody td{padding:0.7rem 1rem;color:var(--text);vertical-align:middle;}
+.badge-status{display:inline-block;padding:2px 10px;border-radius:10px;font-size:0.68rem;font-weight:600;letter-spacing:0.05em;}
+.status-active{background:#d1fae5;color:#065f46;}
+.status-graduated{background:#dbeafe;color:#1e40af;}
+.status-alumni{background:#fef3c7;color:#92400e;}
+.db-panel{display:none;}
+.db-panel.active{display:block;}
+.db-stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem;}
+.db-stat-card{background:white;border-radius:10px;padding:1.1rem;border:1px solid var(--border);display:flex;align-items:center;gap:1rem;}
+.db-stat-icon{font-size:1.8rem;}
+.db-stat-num{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--green);line-height:1;}
+.db-stat-lbl{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:2000;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal{background:white;border-radius:16px;padding:2rem;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 25px 80px rgba(0,0,0,0.2);}
+.modal h3{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--dark);margin-bottom:1.5rem;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;}
+.form-group{margin-bottom:1rem;}
+.form-group label{font-size:0.75rem;font-weight:600;color:var(--text);display:block;margin-bottom:0.35rem;text-transform:uppercase;letter-spacing:0.07em;}
+.form-group input,.form-group select,.form-group textarea{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:0.55rem 0.8rem;font-family:'Outfit',sans-serif;font-size:0.85rem;outline:none;transition:border 0.2s;}
+.form-group input:focus,.form-group select:focus{border-color:var(--green);}
+.modal-actions{display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1rem;}
+.btn-cancel{background:var(--border);color:var(--text);padding:0.6rem 1.2rem;border-radius:8px;border:none;cursor:pointer;font-family:'Outfit',sans-serif;font-weight:600;}
+.btn-save{background:var(--green);color:white;padding:0.6rem 1.5rem;border-radius:8px;border:none;cursor:pointer;font-family:'Outfit',sans-serif;font-weight:600;}
+
+/* ── TESTIMONIALS ── */
+#testimonials{background:white;}
+.testimonials-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:3rem;}
+.testimonial-card{background:var(--cream);border-radius:16px;padding:2rem;border:1px solid var(--border);position:relative;}
+.testimonial-card::before{content:'"';font-family:'Playfair Display',serif;font-size:5rem;color:var(--green-pale);position:absolute;top:-0.5rem;left:1.2rem;line-height:1;pointer-events:none;}
+.testimonial-text{font-size:0.9rem;color:var(--text);line-height:1.8;font-style:italic;position:relative;z-index:1;}
+.testimonial-author{display:flex;align-items:center;gap:0.75rem;margin-top:1.25rem;}
+.author-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--sky));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.9rem;flex-shrink:0;}
+.author-name{font-weight:600;font-size:0.85rem;color:var(--dark);}
+.author-role{font-size:0.72rem;color:var(--green);}
+
+/* ── DONATE ── */
+#donate{background:linear-gradient(135deg,#0a3d1f,var(--green));text-align:center;padding:6rem 2rem;}
+#donate .section-label{color:var(--gold-light);justify-content:center;}
+#donate .section-title{color:white;text-align:center;}
+#donate .section-desc{color:rgba(255,255,255,0.75);text-align:center;margin:0 auto 2.5rem;}
+.donate-amounts{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-bottom:2rem;}
+.donate-amt{background:rgba(255,255,255,0.12);color:white;border:2px solid rgba(255,255,255,0.3);padding:0.6rem 1.4rem;border-radius:20px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:'Outfit',sans-serif;font-size:0.9rem;}
+.donate-amt:hover,.donate-amt.selected{background:var(--gold);border-color:var(--gold);}
+
+/* ── CONTACT ── */
+#contact{background:var(--cream);}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;margin-top:3rem;align-items:start;}
+.contact-info{display:flex;flex-direction:column;gap:1.25rem;}
+.contact-item{display:flex;gap:1rem;align-items:flex-start;}
+.contact-icon{width:44px;height:44px;border-radius:10px;background:var(--green-pale);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.contact-label{font-size:0.72rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:0.08em;}
+.contact-value{font-size:0.9rem;font-weight:600;color:var(--dark);margin-top:0.15rem;line-height:1.4;}
+.contact-form{background:white;border-radius:16px;padding:2rem;border:1px solid var(--border);}
+.contact-form h3{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;margin-bottom:1.5rem;}
+.contact-form .form-row{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;}
+.contact-form .form-group{margin-bottom:1rem;}
+.contact-form .form-group label{font-size:0.72rem;font-weight:600;color:var(--text);display:block;margin-bottom:0.35rem;text-transform:uppercase;letter-spacing:0.07em;}
+.contact-form .form-group input,
+.contact-form .form-group select,
+.contact-form .form-group textarea{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:0.55rem 0.8rem;font-family:'Outfit',sans-serif;font-size:0.85rem;outline:none;transition:border 0.2s;}
+.contact-form .form-group input:focus,
+.contact-form .form-group select:focus,
+.contact-form .form-group textarea:focus{border-color:var(--green);}
+.form-submit{width:100%;background:var(--green);color:white;border:none;padding:0.85rem;border-radius:10px;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;transition:background 0.2s;margin-top:0.5rem;}
+.form-submit:hover{background:var(--green-light);}
+.form-submit:disabled{background:var(--muted);cursor:not-allowed;}
+
+/* ── FOOTER ── */
+footer{background:var(--dark);color:rgba(255,255,255,0.75);padding:3rem 2rem;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2rem;max-width:1100px;margin:0 auto 2rem;}
+.footer-brand-name{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:white;margin-bottom:0.5rem;}
+.footer-brand-desc{font-size:0.8rem;line-height:1.7;margin-bottom:1rem;}
+.footer-reg{font-size:0.7rem;color:rgba(255,255,255,0.4);}
+.footer-head{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.12em;font-weight:600;color:var(--gold-light);margin-bottom:0.75rem;}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:0.4rem;}
+.footer-links a{color:rgba(255,255,255,0.6);text-decoration:none;font-size:0.82rem;transition:color 0.2s;}
+.footer-links a:hover{color:white;}
+.footer-bottom{border-top:1px solid rgba(255,255,255,0.1);padding-top:1.5rem;display:flex;align-items:center;justify-content:space-between;max-width:1100px;margin:0 auto;flex-wrap:wrap;gap:0.5rem;font-size:0.75rem;}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .about-grid,.location-grid,.contact-grid{grid-template-columns:1fr;}
+  .about-image-badge{right:0;bottom:-10px;}
+  .gallery-grid{grid-template-columns:1fr 1fr;}
+  .gallery-item:nth-child(1){grid-column:span 2;}
+  .gallery-item:nth-child(5){grid-column:span 1;}
+  .footer-grid{grid-template-columns:1fr 1fr;}
+  .nav-links{display:none;}
+  .nav-toggle{display:block;}
+  .form-row{grid-template-columns:1fr;}
+  .contact-form .form-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     AUTH OVERLAY
+═══════════════════════════════════════════ -->
+<div id="auth-overlay">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">
+        <img src="https://images.unsplash.com/photo-1509099836639-18ba1795216d?w=128&h=128&fit=crop&crop=faces"
+             alt="KCP" onerror="this.style.display='none';this.parentNode.textContent='K';">
+      </div>
+      <h2>Kinamba Community Project</h2>
+      <p>Kigali, Rwanda · UK Charity No. 1126601</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login-btn" onclick="showAuthTab('login')">Sign In</button>
+      <button class="auth-tab" id="tab-reg-btn" onclick="showAuthTab('register')">Create Account</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div class="auth-form active" id="form-login">
+      <div class="auth-error" id="login-error"></div>
+      <div class="auth-success" id="login-success"></div>
+      <div class="auth-field">
+        <label>Email Address</label>
+        <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="auth-field">
+        <label>Password</label>
+        <input type="password" id="login-pass" placeholder="Your password" autocomplete="current-password">
+      </div>
+      <button class="auth-btn" onclick="handleLogin()">Sign In →</button>
+      <div class="auth-switch">
+        Don't have an account? <a onclick="showAuthTab('register')">Create one now</a>
+      </div>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div class="auth-form" id="form-register">
+      <div class="auth-error" id="reg-error"></div>
+      <div class="auth-success" id="reg-success"></div>
+      <div class="auth-field">
+        <label>Full Name</label>
+        <input type="text" id="reg-name" placeholder="Your full name" autocomplete="name">
+      </div>
+      <div class="auth-field">
+        <label>Email Address</label>
+        <input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="auth-field">
+        <label>Password</label>
+        <input type="password" id="reg-pass" placeholder="Create a password (min 6 chars)" autocomplete="new-password">
+      </div>
+      <div class="auth-field">
+        <label>Confirm Password</label>
+        <input type="password" id="reg-pass2" placeholder="Repeat your password" autocomplete="new-password">
+      </div>
+      <button class="auth-btn" onclick="handleRegister()">Create Account →</button>
+      <div class="auth-switch">
+        Already have an account? <a onclick="showAuthTab('login')">Sign in here</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     LOADING SCREEN
+═══════════════════════════════════════════ -->
+<div id="loading-screen">
+  <div class="loading-logo">
+    <div class="loading-logo-icon">
+      <img src="https://images.unsplash.com/photo-1509099836639-18ba1795216d?w=176&h=176&fit=crop&crop=faces"
+           alt="KCP" onerror="this.style.display='none';this.parentNode.textContent='K';">
+    </div>
+    <div class="loading-title">Kinamba <span>Community</span><br>Project</div>
+    <div class="loading-sub">Kigali, Rwanda · Est. 2008</div>
+  </div>
+
+  <div class="loading-bar-wrap" id="load-bar-wrap">
+    <div class="loading-bar-bg">
+      <div class="loading-bar-fill" id="load-bar"></div>
+    </div>
+    <div class="loading-pct" id="load-pct">Loading... 0%</div>
+  </div>
+
+  <div class="loading-actions" id="loading-actions">
+    <button class="loading-continue-btn" onclick="enterSite()">Continue to Website →</button>
+    <button class="loading-notnow-btn" onclick="notNow()">Not now — go back</button>
+  </div>
+
+  <div class="loading-msg" id="loading-msg">Preparing your experience…</div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MAIN SITE
+═══════════════════════════════════════════ -->
+<div id="main-site">
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <a class="nav-logo" href="#home">
+    <div class="nav-logo-icon">
+      <img src="https://images.unsplash.com/photo-1509099836639-18ba1795216d?w=88&h=88&fit=crop&crop=faces"
+           alt="Kinamba" onerror="this.style.display='none';this.parentNode.textContent='K';">
+    </div>
+    <div>
+      <div class="nav-logo-text">Kinamba Community Project</div>
+      <div class="nav-logo-sub">Kigali, Rwanda · Est. 2008</div>
+    </div>
+  </a>
+  <div class="nav-links" id="nav-links">
+    <a href="#about">About</a>
+    <a href="#programs">Programs</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#videos">Videos</a>
+    <a href="#location">Location</a>
+    <a href="#database">Database</a>
+    <a href="#contact">Contact</a>
+    <a href="#donate" class="nav-donate">Donate</a>
+    <button class="nav-logout" onclick="logout()" title="Sign out">⎋ Sign Out</button>
+  </div>
+  <button class="nav-toggle" onclick="toggleMenu()">☰</button>
+</nav>
+
+<!-- HERO -->
+<section id="home" class="hero">
+  <div class="hero-bg-pattern"></div>
+  <div class="hero-content">
+    <div class="hero-founded">Founded 2008 · UK Charity No. 1126601</div>
+    <h1>Kinamba<br><span>Community</span><br>Project</h1>
+    <p class="hero-subtitle">Transforming lives through education in Rwanda</p>
+    <p class="hero-loc">Kinamba, Kigali, Rwanda — Northwest of Kigali Memorial Centre</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-num">80+</div><div class="hero-stat-label">Nursery Children</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">135+</div><div class="hero-stat-label">Primary Students</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">53+</div><div class="hero-stat-label">Secondary Students</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">10+</div><div class="hero-stat-label">At University</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">17+</div><div class="hero-stat-label">Years of Hope</div></div>
+    </div>
+    <div class="hero-btns">
+      <a href="#programs" class="btn btn-primary">Our Programs</a>
+      <a href="#donate" class="btn btn-outline">Support a Child</a>
+    </div>
+  </div>
+  <div class="hero-scroll">↓ scroll to explore</div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="container">
+    <p class="section-label">Who We Are</p>
+    <h2 class="section-title">Bringing <span>Hope & Education</span><br>to Kinamba Since 2008</h2>
+    <div class="about-grid">
+      <div class="about-image-wrap">
+        <img src="https://images.unsplash.com/photo-1509099836639-18ba1795216d?w=700&q=80" alt="Children learning at Kinamba">
+        <div class="about-image-badge">
+          <div class="badge-year">2008</div>
+          <div class="badge-text">Year Founded</div>
+        </div>
+      </div>
+      <div class="about-text">
+        <p class="section-desc">The Kinamba Community Project provides educational opportunities for the people of the Kamutwa communities in the Kinamba area of Kigali, Rwanda. The devastating genocide of 1994 left war widows, orphans and vulnerable people in desperate need — we exist to offer them hope.</p>
+        <p class="section-desc" style="margin-top:1rem;">In 2008, we purchased a house and additional buildings in Kinamba, gradually converting them into classrooms, a kitchen, play areas, stores and toilets. Today we serve children from nursery all the way through to university support.</p>
+        <ul class="about-list">
+          <li>Nursery education for children aged 3–6 in different communities</li>
+          <li>Primary school support, homework clubs and feeding programme</li>
+          <li>Secondary school sponsorship and boarding support</li>
+          <li>University pathways for the most academically talented</li>
+          <li>Adult literacy, numeracy and vocational skills training</li>
+          <li>Women's cooperatives — basket weaving, tailoring, jewellery</li>
+        </ul>
+        <div class="founder-card">
+          <div class="founder-avatar">M</div>
+          <div>
+            <div class="founder-name">Meg Fletcher</div>
+            <div class="founder-role">Founding Trustee & CEO</div>
+            <div class="founder-bio">Retired Primary Headteacher from Cumbria, UK. First visited Rwanda in 2006 as a VSO volunteer. Awarded a Points of Light Award for her decade of dedication to Rwanda's children.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section id="timeline">
+  <div class="container">
+    <p class="section-label">Our Journey</p>
+    <h2 class="section-title">From <span>2006 to Today</span></h2>
+    <p class="section-desc">Every milestone is a life changed. Here is the story of Kinamba Community Project.</p>
+    <div class="timeline-wrap">
+      <div class="timeline-item"><span class="timeline-year">2006</span><div class="timeline-title">Meg Arrives in Rwanda</div><div class="timeline-text">Meg Fletcher arrives in Kigali as a VSO volunteer, meeting genocide orphans and war widows in the Kinamba community. Inspired to create lasting change.</div></div>
+      <div class="timeline-item tl-gold"><span class="timeline-year">2008</span><div class="timeline-title">Project Founded — Buildings Purchased</div><div class="timeline-text">UK Charity registered (No. 1126601). A house and smaller buildings purchased in Kinamba, converting them into classrooms, a kitchen, play areas and toilets.</div></div>
+      <div class="timeline-item"><span class="timeline-year">2009</span><div class="timeline-title">Nursery School Opens</div><div class="timeline-text">First nursery classes open in Kinamba, welcoming the youngest children of the Kamutwa community. The feeding programme begins to provide daily meals.</div></div>
+      <div class="timeline-item tl-sky"><span class="timeline-year">2012</span><div class="timeline-title">Primary Support Programme Expands</div><div class="timeline-text">Individual child sponsorships grow, supporting over 100 children through primary education in local schools with homework clubs and materials.</div></div>
+      <div class="timeline-item tl-gold"><span class="timeline-year">2015</span><div class="timeline-title">Secondary & Adult Programme Launch</div><div class="timeline-text">Secondary school sponsorships introduced. Adult literacy, numeracy and women's vocational cooperatives established.</div></div>
+      <div class="timeline-item"><span class="timeline-year">2018</span><div class="timeline-title">330+ Students Enrolled</div><div class="timeline-text">80 in nursery, 135 in primary support, 53 at secondary level. Meg awarded the UK Points of Light Award.</div></div>
+      <div class="timeline-item tl-sky"><span class="timeline-year">2022</span><div class="timeline-title">University Students — A Landmark Moment</div><div class="timeline-text">Young adults who first joined KCP as small children begin entering university.</div></div>
+      <div class="timeline-item tl-gold"><span class="timeline-year">2023</span><div class="timeline-title">10 University Students in a Single Year</div><div class="timeline-text">A milestone — ten young people progress to university in one year.</div></div>
+      <div class="timeline-item"><span class="timeline-year">2025</span><div class="timeline-title">Continuing the Mission</div><div class="timeline-text">KCP continues serving the Kinamba community, inspiring younger children and challenging gender inequality through education.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROGRAMS -->
+<section id="programs">
+  <div class="container">
+    <p class="section-label">What We Do</p>
+    <h2 class="section-title">Education at <span>Every Level</span></h2>
+    <p class="section-desc">From the youngest nursery children to university graduates — we walk alongside each student at every stage of their journey.</p>
+    <div class="programs-grid">
+      <div class="program-card"><img src="https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=500&q=80" alt="Nursery" class="program-img"><div class="program-body"><div class="program-icon">🧒</div><div class="program-level">Early Childhood</div><div class="program-title">Nursery School</div><div class="program-desc">Play-based learning, meals, health checks and a safe, nurturing environment for the youngest children of Kamutwa aged 3–6.</div><span class="program-count">80+ children enrolled</span></div></div>
+      <div class="program-card"><img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=500&q=80" alt="Primary" class="program-img"><div class="program-body"><div class="program-icon">📚</div><div class="program-level">Primary Education</div><div class="program-title">Primary Support</div><div class="program-desc">Sponsorship for school fees, uniforms, meals and materials. Homework clubs and tutoring ensure children thrive.</div><span class="program-count">135+ students supported</span></div></div>
+      <div class="program-card"><img src="https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=500&q=80" alt="Secondary" class="program-img"><div class="program-body"><div class="program-icon">🎓</div><div class="program-level">Secondary Education</div><div class="program-title">Secondary School</div><div class="program-desc">Individual sponsorship for boarding school placements across Rwanda, including prestigious institutions like Green Hills Academy.</div><span class="program-count">53+ students sponsored</span></div></div>
+      <div class="program-card"><img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=500&q=80" alt="University" class="program-img"><div class="program-body"><div class="program-icon">🏫</div><div class="program-level">Higher Education</div><div class="program-title">University Pathway</div><div class="program-desc">University support — fees, accommodation and mentoring. In 2023 alone, 10 students entered university.</div><span class="program-count">10+ at university (2023)</span></div></div>
+      <div class="program-card"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80" alt="Adult" class="program-img"><div class="program-body"><div class="program-icon">👩</div><div class="program-level">Adult Learning</div><div class="program-title">Adult Literacy & Skills</div><div class="program-desc">Basic literacy and numeracy classes for adults. Vocational training in tailoring, basket weaving and jewellery.</div><span class="program-count">War widows & adults</span></div></div>
+      <div class="program-card"><img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=500&q=80" alt="Food" class="program-img"><div class="program-body"><div class="program-icon">🍽️</div><div class="program-level">Wellbeing</div><div class="program-title">Feeding Programme</div><div class="program-desc">Daily hot meals for undernourished children ensuring they can concentrate and learn.</div><span class="program-count">All enrolled children</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery">
+  <div class="container">
+    <p class="section-label">Life at Kinamba</p>
+    <h2 class="section-title" style="color:white;">Photos from <span style="color:var(--gold-light)">Our Community</span></h2>
+    <div class="gallery-grid">
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1509099836639-18ba1795216d?w=900&q=80" alt="Children at school"><div class="gallery-overlay"><span>Children learning at KCP</span></div></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=500&q=80" alt="Nursery"><div class="gallery-overlay"><span>Nursery classroom</span></div></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=500&q=80" alt="Students studying"><div class="gallery-overlay"><span>Primary homework club</span></div></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=500&q=80" alt="Secondary"><div class="gallery-overlay"><span>Secondary students</span></div></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=700&q=80" alt="University"><div class="gallery-overlay"><span>University achievers</span></div></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80" alt="Crafts"><div class="gallery-overlay"><span>Women's basket weaving cooperative</span></div></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=500&q=80" alt="Feeding"><div class="gallery-overlay"><span>Daily feeding programme</span></div></div>
+      <div class="gallery-item"><img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=500&q=80" alt="Community"><div class="gallery-overlay"><span>Community gathering</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEOS -->
+<section id="videos">
+  <div class="container">
+    <p class="section-label">Watch & Learn</p>
+    <h2 class="section-title">See Our <span style="color:var(--gold-light)">Impact</span> in Action</h2>
+    <p class="section-desc">Watch videos about the Kinamba Community Project, Rwanda education, and the communities we serve.</p>
+    <div class="videos-grid">
+      <div class="video-card">
+        <div class="video-thumb">
+          <a class="video-play-fallback" href="https://www.youtube.com/results?search_query=Rwanda+community+education+project" target="_blank">
+            <div style="position:absolute;inset:0;background:linear-gradient(135deg,#0a3d1f 0%,#1a6b3c 50%,#2d9e5f 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:2rem;">
+              <div style="font-size:3rem;">🎬</div>
+              <div class="video-play-btn">▶</div>
+              <div class="video-play-label">Children of Kinamba</div>
+            </div>
+          </a>
+        </div>
+        <div class="video-info"><div class="video-tag">Community Story</div><div class="video-title">Children of Kinamba — A Story of Hope</div><div class="video-desc">Follow the journey of students from their first day in nursery to their university graduation.</div></div>
+      </div>
+      <div class="video-card">
+        <div class="video-thumb">
+          <a class="video-play-fallback" href="https://www.youtube.com/results?search_query=Rwanda+secondary+education" target="_blank">
+            <div style="position:absolute;inset:0;background:linear-gradient(135deg,#0a3d1f 0%,#1a6b3c 50%,#2d9e5f 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:2rem;">
+              <div style="font-size:3rem;">🎓</div>
+              <div class="video-play-btn">▶</div>
+              <div class="video-play-label">Secondary Students</div>
+            </div>
+          </a>
+        </div>
+        <div class="video-info"><div class="video-tag">Education</div><div class="video-title">Secondary Education in Rwanda — KCP Scholars</div><div class="video-desc">Meet the secondary students sponsored by KCP — many boarding across Rwanda.</div></div>
+      </div>
+      <div class="video-card">
+        <div class="video-thumb">
+          <a class="video-play-fallback" href="https://www.youtube.com/results?search_query=Rwanda+women+basket+weaving+cooperative" target="_blank">
+            <div style="position:absolute;inset:0;background:linear-gradient(135deg,#1e5f8e 0%,#2d9e5f 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:2rem;">
+              <div style="font-size:3rem;">🧺</div>
+              <div class="video-play-btn">▶</div>
+              <div class="video-play-label">Women's Cooperative</div>
+            </div>
+          </a>
+        </div>
+        <div class="video-info"><div class="video-tag">Women's Programme</div><div class="video-title">Rwandan Women Weaving a New Future</div><div class="video-desc">War widows weave traditional sweet-grass baskets — building dignity and income.</div></div>
+      </div>
+      <div class="video-card">
+        <div class="video-thumb">
+          <a class="video-play-fallback" href="https://www.youtube.com/results?search_query=Meg+Fletcher+Rwanda+education" target="_blank">
+            <div style="position:absolute;inset:0;background:linear-gradient(135deg,#3d1a0a 0%,#6b3c1a 50%,#9e5f2d 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:2rem;">
+              <div style="font-size:3rem;">🌟</div>
+              <div class="video-play-btn">▶</div>
+              <div class="video-play-label">Founder's Story</div>
+            </div>
+          </a>
+        </div>
+        <div class="video-info"><div class="video-tag">Founder's Story</div><div class="video-title">Meg Fletcher — Why She Stayed in Rwanda</div><div class="video-desc">Hear Meg Fletcher's own words about what drove her to found KCP after meeting genocide survivors.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LOCATION -->
+<section id="location">
+  <div class="container">
+    <p class="section-label">Find Us</p>
+    <h2 class="section-title">Our <span>Location</span> in Kigali</h2>
+    <p class="section-desc">We are located in the Kinamba area of Kigali, northwest of the Kigali Genocide Memorial Centre.</p>
+    <div class="location-grid">
+      <div class="map-wrap">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3987.4744!2d30.0574!3d-1.9441!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x19dca42e83d27ba7%3A0x7b2e8e6f59df4c1!2sKinamba%2C%20Kigali%2C%20Rwanda!5e0!3m2!1sen!2srw!4v1700000000000" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+      <div class="location-details">
+        <div class="loc-card"><div class="loc-label">📍 Address</div><div class="loc-value">Kinamba, Kigali, Rwanda</div><div class="loc-sub">Kamutwa Community, Northwestern Kigali<br>Near Kigali Genocide Memorial Centre</div></div>
+        <div class="loc-card" style="border-left-color:var(--gold);"><div class="loc-label">📞 Contact (Rwanda)</div><div class="loc-value">+250 783 206 154</div><div class="loc-sub">Epiphanie (Local Coordinator) — Mon–Fri 8am–5pm CAT</div></div>
+        <div class="loc-card" style="border-left-color:var(--sky);"><div class="loc-label">🏢 UK Registered Office</div><div class="loc-value">Crabtree Farm, Main Street<br>Baycliff, Ulverston, LA12 9RN</div><div class="loc-sub">Charity No. 1126601 · England & Wales</div></div>
+        <div class="loc-card"><div class="loc-label">🌐 Website & Social</div><div class="loc-value">www.kinambaproject.org.uk</div><div class="loc-sub">Follow us for latest news and student stories</div></div>
+        <a href="https://maps.google.com/?q=Kinamba,Kigali,Rwanda" target="_blank" class="directions-btn">🗺️ Get Directions to Kinamba, Kigali</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IMPACT -->
+<section id="impact">
+  <div class="container">
+    <p class="section-label">Our Numbers</p>
+    <h2 class="section-title">The <span style="color:var(--gold-light)">Impact</span> of 17 Years</h2>
+    <div class="impact-numbers">
+      <div class="impact-item"><div class="impact-num">330+</div><div class="impact-label">Children educated<br>every year</div></div>
+      <div class="impact-item"><div class="impact-num">17</div><div class="impact-label">Years of<br>continuous service</div></div>
+      <div class="impact-item"><div class="impact-num">10+</div><div class="impact-label">University students<br>in 2023 alone</div></div>
+      <div class="impact-item"><div class="impact-num">100%</div><div class="impact-label">Staff from<br>local community</div></div>
+      <div class="impact-item"><div class="impact-num">1</div><div class="impact-label">Meal per child<br>every school day</div></div>
+      <div class="impact-item"><div class="impact-num">∞</div><div class="impact-label">Hope given to<br>a generation</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- DATABASE -->
+<section id="database">
+  <div class="container">
+    <p class="section-label">Student Management System</p>
+    <h2 class="section-title">KCP <span>Database</span></h2>
+    <p class="section-desc">Manage and view all enrolled students, staff and sponsors across all programmes.</p>
+    <div class="db-stats-grid" style="margin-top:2rem;">
+      <div class="db-stat-card"><div class="db-stat-icon">🧒</div><div><div class="db-stat-num">80</div><div class="db-stat-lbl">Nursery</div></div></div>
+      <div class="db-stat-card"><div class="db-stat-icon">📚</div><div><div class="db-stat-num">135</div><div class="db-stat-lbl">Primary</div></div></div>
+      <div class="db-stat-card"><div class="db-stat-icon">🎓</div><div><div class="db-stat-num">53</div><div class="db-stat-lbl">Secondary</div></div></div>
+      <div class="db-stat-card"><div class="db-stat-icon">🏫</div><div><div class="db-stat-num">12</div><div class="db-stat-lbl">University</div></div></div>
+      <div class="db-stat-card"><div class="db-stat-icon">👩</div><div><div class="db-stat-num">48</div><div class="db-stat-lbl">Adult Learners</div></div></div>
+      <div class="db-stat-card"><div class="db-stat-icon">💳</div><div><div class="db-stat-num">94</div><div class="db-stat-lbl">Active Sponsors</div></div></div>
+    </div>
+    <div class="db-tabs">
+      <button class="db-tab active" onclick="switchTab('students',event)">Students</button>
+      <button class="db-tab" onclick="switchTab('staff',event)">Staff</button>
+      <button class="db-tab" onclick="switchTab('sponsors',event)">Sponsors</button>
+      <button class="db-tab" onclick="switchTab('alumni',event)">Alumni</button>
+    </div>
+    <div class="db-panel active" id="tab-students">
+      <div class="db-toolbar">
+        <input type="text" class="db-search" placeholder="🔍  Search students..." oninput="filterTable('students-table', this.value)">
+        <select class="db-search" style="flex:0;width:160px;" onchange="filterByLevel(this.value)">
+          <option value="">All Levels</option>
+          <option value="Nursery">Nursery</option>
+          <option value="Primary">Primary</option>
+          <option value="Secondary">Secondary</option>
+          <option value="University">University</option>
+        </select>
+        <button class="db-btn db-btn-add" onclick="openModal('student')">+ Add Student</button>
+        <button class="db-btn db-btn-export" onclick="exportCSV('students')">⬇ Export CSV</button>
+      </div>
+      <div class="db-table-wrap"><table id="students-table"><thead><tr><th>#</th><th>Name</th><th>Level</th><th>Year Enrolled</th><th>Sponsor</th><th>Status</th><th>Actions</th></tr></thead><tbody id="students-body"></tbody></table></div>
+    </div>
+    <div class="db-panel" id="tab-staff">
+      <div class="db-toolbar"><input type="text" class="db-search" placeholder="🔍  Search staff..." oninput="filterTable('staff-table', this.value)"><button class="db-btn db-btn-add" onclick="openModal('staff')">+ Add Staff</button></div>
+      <div class="db-table-wrap"><table id="staff-table"><thead><tr><th>#</th><th>Name</th><th>Role</th><th>Department</th><th>Joined</th><th>Status</th></tr></thead><tbody id="staff-body"></tbody></table></div>
+    </div>
+    <div class="db-panel" id="tab-sponsors">
+      <div class="db-toolbar"><input type="text" class="db-search" placeholder="🔍  Search sponsors..." oninput="filterTable('sponsors-table', this.value)"><button class="db-btn db-btn-add" onclick="openModal('sponsor')">+ Add Sponsor</button></div>
+      <div class="db-table-wrap"><table id="sponsors-table"><thead><tr><th>#</th><th>Sponsor Name</th><th>Country</th><th>Student Sponsored</th><th>Since</th><th>Status</th></tr></thead><tbody id="sponsors-body"></tbody></table></div>
+    </div>
+    <div class="db-panel" id="tab-alumni">
+      <div class="db-toolbar"><input type="text" class="db-search" placeholder="🔍  Search alumni..." oninput="filterTable('alumni-table', this.value)"></div>
+      <div class="db-table-wrap"><table id="alumni-table"><thead><tr><th>#</th><th>Name</th><th>Year Graduated</th><th>Highest Level</th><th>Current Occupation</th></tr></thead><tbody id="alumni-body"></tbody></table></div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="container">
+    <p class="section-label">Voices</p>
+    <h2 class="section-title">Words from Our <span>Community</span></h2>
+    <div class="testimonials-grid">
+      <div class="testimonial-card"><p class="testimonial-text">"When I first started working with the Kinamba Community Project, no one had any idea they may be able to make choices about their lives. I am so proud that together, we have raised the aspirations of so many young people."</p><div class="testimonial-author"><div class="author-avatar">M</div><div><div class="author-name">Meg Fletcher</div><div class="author-role">Founder & CEO, KCP</div></div></div></div>
+      <div class="testimonial-card"><p class="testimonial-text">"I first attended KCP schooling back in 2009. Now at 21 years old, I am the first in my family ever to finish secondary school. The project did not just give me education — it gave me the courage to believe my life could be different."</p><div class="testimonial-author"><div class="author-avatar">O</div><div><div class="author-name">Obard Mbarushimana</div><div class="author-role">KCP Alumnus, enrolled 2009</div></div></div></div>
+      <div class="testimonial-card"><p class="testimonial-text">"Ora, one of Meg's first pupils, has not only attained a scholarship to the city's prestigious Green Hills Academy but has just been appointed Head Boy. This is what Kinamba does — it builds leaders."</p><div class="testimonial-author"><div class="author-avatar">O</div><div><div class="author-name">Ora (KCP Graduate)</div><div class="author-role">Head Boy, Green Hills Academy</div></div></div></div>
+      <div class="testimonial-card"><p class="testimonial-text">"Seeing ten young people go to university in a single year — for some of these kids they are the first in their family to go to school — the chance to then go to university is nothing short of life-changing."</p><div class="testimonial-author"><div class="author-avatar">C</div><div><div class="author-name">Claire Longney</div><div class="author-role">Director, Acorn Coaching</div></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- DONATE -->
+<section id="donate">
+  <div class="container" style="max-width:680px;">
+    <p class="section-label" style="text-align:center;">Support Our Work</p>
+    <h2 class="section-title" style="text-align:center;">Change a Child's Life<br><span style="color:var(--gold-light)">Today</span></h2>
+    <p class="section-desc">Your sponsorship covers a child's school fees, uniform, meals, and materials. Even the smallest contribution makes a life-changing difference in Kinamba.</p>
+    <div class="donate-amounts">
+      <button class="donate-amt" onclick="selectAmt(this)">£10/mo</button>
+      <button class="donate-amt selected" onclick="selectAmt(this)">£25/mo</button>
+      <button class="donate-amt" onclick="selectAmt(this)">£50/mo</button>
+      <button class="donate-amt" onclick="selectAmt(this)">£100/mo</button>
+      <button class="donate-amt" onclick="selectAmt(this)">Custom</button>
+    </div>
+    <p style="color:rgba(255,255,255,0.6);font-size:0.8rem;margin-bottom:1.5rem;">£25/month sponsors one child's full education including meals, uniform and materials for an entire year.</p>
+    <a href="https://www.kinambaproject.org.uk" target="_blank" class="btn btn-primary" style="font-size:1rem;padding:1rem 3rem;">Donate via KinambaProject.org.uk ↗</a>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="container">
+    <p class="section-label">Get In Touch</p>
+    <h2 class="section-title">Contact <span>Kinamba Community Project</span></h2>
+    <div class="contact-grid">
+      <div class="contact-info">
+        <p style="font-size:0.95rem;color:var(--muted);line-height:1.8;margin-bottom:1rem;">We welcome visitors to the project in Kigali. Please contact us in advance to arrange a visit and meet the children and adults of the Kinamba community.</p>
+        <div class="contact-item"><div class="contact-icon">🌐</div><div><div class="contact-label">Website</div><div class="contact-value">www.kinambaproject.org.uk</div></div></div>
+        <div class="contact-item"><div class="contact-icon">📞</div><div><div class="contact-label">Rwanda Phone</div><div class="contact-value">+250 783 206 154<br><span style="font-size:0.78rem;color:var(--muted);">Ask for Epiphanie (Local Coordinator)</span></div></div></div>
+        <div class="contact-item"><div class="contact-icon">📮</div><div><div class="contact-label">UK Office</div><div class="contact-value">Crabtree Farm, Main Street<br>Baycliff, Ulverston, LA12 9RN<br>United Kingdom</div></div></div>
+        <div class="contact-item"><div class="contact-icon">🏛️</div><div><div class="contact-label">Charity Registration</div><div class="contact-value">UK Charity No. 1126601<br>England & Wales</div></div></div>
+        <div class="contact-item"><div class="contact-icon">👤</div><div><div class="contact-label">Founder & CEO</div><div class="contact-value">Meg Fletcher<br>Founding Trustee, Retired Primary Headteacher</div></div></div>
+      </div>
+
+      <!-- CONTACT FORM → sends email to ericasantemungu@gmail.com via Formspree -->
+      <div class="contact-form">
+        <h3>Send a Message</h3>
+        <div id="contact-success" style="display:none;background:var(--green-pale);border:1px solid #86efac;border-radius:8px;color:var(--green);font-size:0.85rem;padding:0.75rem 1rem;margin-bottom:1rem;">
+          ✅ Message sent! We'll be in touch with you soon.
+        </div>
+        <div id="contact-error" style="display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;color:#b91c1c;font-size:0.85rem;padding:0.75rem 1rem;margin-bottom:1rem;"></div>
+        <div class="form-row">
+          <div class="form-group"><label>First Name</label><input type="text" id="cf-first" placeholder="Your first name"></div>
+          <div class="form-group"><label>Last Name</label><input type="text" id="cf-last" placeholder="Your last name"></div>
+        </div>
+        <div class="form-group"><label>Email</label><input type="email" id="cf-email" placeholder="your@email.com"></div>
+        <div class="form-group"><label>Subject</label>
+          <select id="cf-subject">
+            <option>I want to sponsor a child</option>
+            <option>I want to volunteer</option>
+            <option>General enquiry</option>
+            <option>Arrange a visit to Kinamba</option>
+            <option>Media / Press enquiry</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Message</label><textarea id="cf-message" rows="4" placeholder="Tell us how you'd like to get involved..." style="resize:vertical;"></textarea></div>
+        <button class="form-submit" id="cf-submit" onclick="submitContactForm()">Send Message ✈</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-brand-name">Kinamba Community Project</div>
+      <div class="footer-brand-desc">Providing educational opportunities for the people of Kamutwa communities in the Kinamba area of Kigali, Rwanda — since 2008. Offering hope to war widows, genocide orphans, and vulnerable children.</div>
+      <div class="footer-reg">UK Charity No. 1126601 · Registered England & Wales</div>
+    </div>
+    <div>
+      <div class="footer-head">Programmes</div>
+      <ul class="footer-links">
+        <li><a href="#programs">Nursery School</a></li>
+        <li><a href="#programs">Primary Support</a></li>
+        <li><a href="#programs">Secondary School</a></li>
+        <li><a href="#programs">University Pathway</a></li>
+        <li><a href="#programs">Adult Literacy</a></li>
+        <li><a href="#programs">Feeding Programme</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-head">About</div>
+      <ul class="footer-links">
+        <li><a href="#about">Our Story</a></li>
+        <li><a href="#timeline">Timeline</a></li>
+        <li><a href="#impact">Impact</a></li>
+        <li><a href="#testimonials">Testimonials</a></li>
+        <li><a href="#gallery">Photo Gallery</a></li>
+        <li><a href="#videos">Videos</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-head">Get Involved</div>
+      <ul class="footer-links">
+        <li><a href="#donate">Sponsor a Child</a></li>
+        <li><a href="#contact">Volunteer</a></li>
+        <li><a href="#contact">Arrange a Visit</a></li>
+        <li><a href="#location">Find Us</a></li>
+        <li><a href="https://www.kinambaproject.org.uk" target="_blank">Official Website ↗</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div>© 2025 Kinamba Community Project · UK Charity No. 1126601 · Founded by Meg Fletcher</div>
+    <div style="color:rgba(255,255,255,0.4);">Kinamba, Kigali, Rwanda</div>
+  </div>
+</footer>
+
+</div><!-- end #main-site -->
+
+<!-- DATABASE MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3 id="modal-title">Add New Student</h3>
+    <div id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveRecord()">Save Record</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   AUTH SYSTEM
+══════════════════════════════════════════ */
+const STORAGE_KEY = 'kcp_users';
+const SESSION_KEY = 'kcp_session';
+
+function getUsers() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e){ return []; }
+}
+function saveUsers(users) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+}
+function getCurrentUser() {
+  try { return JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null'); } catch(e){ return null; }
+}
+
+function showAuthTab(tab) {
+  document.getElementById('form-login').classList.toggle('active', tab==='login');
+  document.getElementById('form-register').classList.toggle('active', tab==='register');
+  document.getElementById('tab-login-btn').classList.toggle('active', tab==='login');
+  document.getElementById('tab-reg-btn').classList.toggle('active', tab==='register');
+}
+
+function showAuthError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 4000);
+}
+function showAuthSuccess(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.classList.add('show');
+}
+
+function handleLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  if (!email || !pass) { showAuthError('login-error','Please fill in all fields.'); return; }
+  const users = getUsers();
+  const user = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === pass);
+  if (!user) { showAuthError('login-error','Incorrect email or password. Please try again.'); return; }
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({name: user.name, email: user.email}));
+  showAuthSuccess('login-success', '✓ Welcome back, ' + user.name + '! Loading…');
+  setTimeout(startLoadingScreen, 900);
+}
+
+function handleRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass = document.getElementById('reg-pass').value;
+  const pass2 = document.getElementById('reg-pass2').value;
+  if (!name || !email || !pass || !pass2) { showAuthError('reg-error','Please fill in all fields.'); return; }
+  if (pass.length < 6) { showAuthError('reg-error','Password must be at least 6 characters.'); return; }
+  if (pass !== pass2) { showAuthError('reg-error','Passwords do not match.'); return; }
+  const users = getUsers();
+  if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+    showAuthError('reg-error','An account with this email already exists. Please sign in.'); return;
+  }
+  users.push({name, email, password: pass});
+  saveUsers(users);
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({name, email}));
+  showAuthSuccess('reg-success','✓ Account created! Loading your experience…');
+  setTimeout(startLoadingScreen, 900);
+}
+
+function logout() {
+  sessionStorage.removeItem(SESSION_KEY);
+  document.getElementById('main-site').style.display = 'none';
+  document.getElementById('main-site').classList.remove('visible');
+  document.getElementById('auth-overlay').style.display = 'flex';
+  document.getElementById('loading-screen').style.display = 'none';
+  // reset login form
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-pass').value = '';
+}
+
+// Allow Enter key on login
+document.getElementById('login-pass').addEventListener('keydown', e => { if(e.key==='Enter') handleLogin(); });
+document.getElementById('reg-pass2').addEventListener('keydown', e => { if(e.key==='Enter') handleRegister(); });
+
+/* ══════════════════════════════════════════
+   LOADING SCREEN (5-second countdown)
+══════════════════════════════════════════ */
+function startLoadingScreen() {
+  document.getElementById('auth-overlay').style.display = 'none';
+  const ls = document.getElementById('loading-screen');
+  ls.style.display = 'flex';
+
+  const bar = document.getElementById('load-bar');
+  const pct = document.getElementById('load-pct');
+  const msg = document.getElementById('loading-msg');
+  const actions = document.getElementById('loading-actions');
+  const barWrap = document.getElementById('load-bar-wrap');
+
+  const messages = [
+    'Preparing your experience…',
+    'Loading community stories…',
+    'Fetching programme data…',
+    'Almost there…',
+    'Ready!'
+  ];
+
+  let progress = 0;
+  const totalMs = 5000;
+  const interval = 80; // ms per tick
+  const steps = totalMs / interval;
+  let tick = 0;
+
+  const timer = setInterval(() => {
+    tick++;
+    progress = Math.min(100, Math.round((tick / steps) * 100));
+    bar.style.width = progress + '%';
+    pct.textContent = 'Loading… ' + progress + '%';
+    const msgIdx = Math.min(Math.floor(progress / 25), messages.length - 1);
+    msg.textContent = messages[msgIdx];
+
+    if (progress >= 100) {
+      clearInterval(timer);
+      pct.textContent = 'Ready! 100%';
+      msg.textContent = 'Your experience is ready.';
+      barWrap.style.opacity = '0';
+      barWrap.style.transition = 'opacity 0.4s';
+      setTimeout(() => {
+        barWrap.style.display = 'none';
+        actions.style.display = 'flex';
+      }, 400);
+    }
+  }, interval);
+}
+
+function enterSite() {
+  document.getElementById('loading-screen').style.display = 'none';
+  const site = document.getElementById('main-site');
+  site.style.display = 'block';
+  site.classList.add('visible');
+  // set user greeting in nav
+  const user = getCurrentUser();
+  if (user) {
+    const logoutBtn = document.querySelector('.nav-logout');
+    if (logoutBtn) logoutBtn.title = 'Sign out — ' + user.name;
+  }
+  window.scrollTo(0,0);
+}
+
+function notNow() {
+  // Go back to auth screen
+  document.getElementById('loading-screen').style.display = 'none';
+  sessionStorage.removeItem(SESSION_KEY);
+  document.getElementById('auth-overlay').style.display = 'flex';
+  // reset bar for next time
+  document.getElementById('load-bar').style.width = '0%';
+  document.getElementById('load-pct').textContent = 'Loading… 0%';
+  document.getElementById('loading-actions').style.display = 'none';
+  document.getElementById('load-bar-wrap').style.display = '';
+  document.getElementById('load-bar-wrap').style.opacity = '1';
+  document.getElementById('loading-msg').textContent = 'Preparing your experience…';
+}
+
+// Auto-login if session exists
+window.addEventListener('DOMContentLoaded', () => {
+  if (getCurrentUser()) {
+    startLoadingScreen();
+  }
+});
+
+/* ══════════════════════════════════════════
+   CONTACT FORM → Formspree email delivery
+══════════════════════════════════════════ */
+async function submitContactForm() {
+  const first = document.getElementById('cf-first').value.trim();
+  const last = document.getElementById('cf-last').value.trim();
+  const email = document.getElementById('cf-email').value.trim();
+  const subject = document.getElementById('cf-subject').value;
+  const message = document.getElementById('cf-message').value.trim();
+
+  if (!first || !email || !message) {
+    document.getElementById('contact-error').textContent = 'Please fill in your first name, email and message.';
+    document.getElementById('contact-error').style.display = 'block';
+    return;
+  }
+  document.getElementById('contact-error').style.display = 'none';
+
+  const btn = document.getElementById('cf-submit');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  try {
+    // Formspree endpoint — sends to ericasantemungu@gmail.com
+    // You must visit https://formspree.io and create a free form to get your own endpoint.
+    // Replace "YOUR_FORM_ID" below with your Formspree form ID after signing up at formspree.io
+    const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xdkobypk';
+
+    const res = await fetch(FORMSPREE_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        name: first + ' ' + last,
+        email: email,
+        subject: subject,
+        message: message,
+        _replyto: email,
+        _subject: '[KCP Website] ' + subject
+      })
+    });
+
+    if (res.ok) {
+      document.getElementById('contact-success').style.display = 'block';
+      document.getElementById('cf-first').value = '';
+      document.getElementById('cf-last').value = '';
+      document.getElementById('cf-email').value = '';
+      document.getElementById('cf-message').value = '';
+      btn.textContent = '✓ Sent!';
+    } else {
+      throw new Error('Server error');
+    }
+  } catch(e) {
+    // Fallback: open mailto
+    const mailtoLink = `mailto:ericasantemungu@gmail.com?subject=${encodeURIComponent('[KCP] '+subject)}&body=${encodeURIComponent('From: '+first+' '+last+'\nEmail: '+email+'\n\n'+message)}`;
+    window.location.href = mailtoLink;
+    document.getElementById('contact-success').style.display = 'block';
+    document.getElementById('contact-success').textContent = '✅ Opening your email client to send the message…';
+    btn.textContent = '✓ Opening mail…';
+  }
+
+  setTimeout(() => { btn.disabled = false; btn.textContent = 'Send Message ✈'; }, 4000);
+}
+
+/* ══════════════════════════════════════════
+   DATABASE
+══════════════════════════════════════════ */
+const db = {
+  students: [
+    {id:1,name:"Josepha Nyinawumuntu",level:"Primary",enrolled:2017,sponsor:"Acorn Coaching",status:"Active"},
+    {id:2,name:"Obard Mbarushimana",level:"University",enrolled:2009,sponsor:"KCP Fund",status:"Active"},
+    {id:3,name:"Ora Uwimana",level:"Secondary",enrolled:2010,sponsor:"KCP Fund",status:"Active"},
+    {id:4,name:"Aline Mukamana",level:"Nursery",enrolled:2022,sponsor:"Unsponsored",status:"Active"},
+    {id:5,name:"Jean-Pierre Habimana",level:"Primary",enrolled:2016,sponsor:"Cumbria OAT",status:"Active"},
+    {id:6,name:"Grace Uwase",level:"Secondary",enrolled:2014,sponsor:"The Slow Cyclist",status:"Active"},
+    {id:7,name:"Emmanuel Bizimana",level:"University",enrolled:2011,sponsor:"UK Donor",status:"Active"},
+    {id:8,name:"Clarisse Iradukunda",level:"Primary",enrolled:2019,sponsor:"Church Group UK",status:"Active"},
+    {id:9,name:"Fiston Ntwari",level:"Nursery",enrolled:2023,sponsor:"Unsponsored",status:"Active"},
+    {id:10,name:"Marie Claire Ineza",level:"Secondary",enrolled:2015,sponsor:"Private Donor",status:"Active"},
+    {id:11,name:"Patrick Ndayisaba",level:"Primary",enrolled:2018,sponsor:"School Partnership",status:"Active"},
+    {id:12,name:"Sandrine Kayitesi",level:"University",enrolled:2012,sponsor:"KCP Trust",status:"Active"},
+  ],
+  staff: [
+    {id:1,name:"Meg Fletcher",role:"CEO & Founding Trustee",dept:"Management",joined:2008,status:"Active"},
+    {id:2,name:"Epiphanie Uwamahoro",role:"Local Coordinator",dept:"Operations",joined:2009,status:"Active"},
+    {id:3,name:"Jeannette Mukabutera",role:"Nursery Teacher",dept:"Education",joined:2010,status:"Active"},
+    {id:4,name:"Claudine Nzeyimana",role:"Primary Teacher",dept:"Education",joined:2011,status:"Active"},
+    {id:5,name:"Kathryn McCartney",role:"UK Trustee",dept:"Board",joined:2008,status:"Active"},
+    {id:6,name:"Kath Pink",role:"UK Trustee",dept:"Board",joined:2009,status:"Active"},
+    {id:7,name:"Emma Tooth",role:"UK Trustee",dept:"Board",joined:2012,status:"Active"},
+    {id:8,name:"Solange Mukankusi",role:"Feeding Programme Coordinator",dept:"Welfare",joined:2013,status:"Active"},
+    {id:9,name:"Dieudonne Havugimana",role:"Adult Literacy Tutor",dept:"Education",joined:2015,status:"Active"},
+    {id:10,name:"Vestine Murorunkwere",role:"Tailoring Instructor",dept:"Vocational",joined:2016,status:"Active"},
+  ],
+  sponsors: [
+    {id:1,name:"Acorn Coaching & Development",country:"UK",student:"Josepha Nyinawumuntu",since:2019,status:"Active"},
+    {id:2,name:"Cumbria Overseas Aid Trust",country:"UK",student:"Jean-Pierre Habimana",since:2014,status:"Active"},
+    {id:3,name:"The Slow Cyclist",country:"UK",student:"Grace Uwase",since:2016,status:"Active"},
+    {id:4,name:"Anonymous UK Donor",country:"UK",student:"Emmanuel Bizimana",since:2013,status:"Active"},
+    {id:5,name:"St Mary's Church Group",country:"UK",student:"Clarisse Iradukunda",since:2018,status:"Active"},
+    {id:6,name:"Leeds Primary School Partnership",country:"UK",student:"Patrick Ndayisaba",since:2017,status:"Active"},
+    {id:7,name:"KCP General Trust Fund",country:"Rwanda/UK",student:"Multiple Students",since:2008,status:"Active"},
+  ],
+  alumni: [
+    {id:1,name:"Obard Mbarushimana",graduated:2022,level:"Secondary School",occupation:"University Student – Law"},
+    {id:2,name:"Ora Uwimana",graduated:2023,level:"Secondary School",occupation:"Head Boy – Green Hills Academy"},
+    {id:3,name:"Sandrine Kayitesi",graduated:2020,level:"University",occupation:"Primary School Teacher, Kigali"},
+    {id:4,name:"Celestin Niyonsaba",graduated:2019,level:"Secondary School",occupation:"University Student – Engineering"},
+    {id:5,name:"Chantal Mukamigabo",graduated:2021,level:"Secondary School",occupation:"Nursing Student, CHUK Hospital"},
+    {id:6,name:"Innocent Ntawukuliryayo",graduated:2018,level:"Secondary School",occupation:"Entrepreneur, Kigali"},
+  ]
+};
+
+function renderStudents(data){
+  const body=document.getElementById('students-body');
+  if(!body)return;
+  body.innerHTML='';
+  data.forEach((s,i)=>{
+    const lc=s.level==='University'?'status-graduated':s.level==='Secondary'?'status-alumni':'status-active';
+    body.innerHTML+=`<tr><td style="color:var(--muted)">${i+1}</td><td style="font-weight:600">${s.name}</td><td>${s.level}</td><td>${s.enrolled}</td><td style="color:var(--green);font-size:0.8rem">${s.sponsor}</td><td><span class="badge-status ${lc}">${s.status}</span></td><td><button onclick="editStudent(${s.id})" style="background:var(--green-pale);color:var(--green);border:none;padding:3px 10px;border-radius:5px;font-size:0.72rem;cursor:pointer;font-family:'Outfit',sans-serif;font-weight:600;">Edit</button></td></tr>`;
+  });
+}
+function renderStaff(data){
+  const body=document.getElementById('staff-body');
+  if(!body)return;
+  body.innerHTML='';
+  data.forEach((s,i)=>{
+    body.innerHTML+=`<tr><td style="color:var(--muted)">${i+1}</td><td style="font-weight:600">${s.name}</td><td>${s.role}</td><td>${s.dept}</td><td>${s.joined}</td><td><span class="badge-status status-active">${s.status}</span></td></tr>`;
+  });
+}
+function renderSponsors(data){
+  const body=document.getElementById('sponsors-body');
+  if(!body)return;
+  body.innerHTML='';
+  data.forEach((s,i)=>{
+    body.innerHTML+=`<tr><td style="color:var(--muted)">${i+1}</td><td style="font-weight:600">${s.name}</td><td>🇬🇧 ${s.country}</td><td style="color:var(--green)">${s.student}</td><td>${s.since}</td><td><span class="badge-status status-active">${s.status}</span></td></tr>`;
+  });
+}
+function renderAlumni(data){
+  const body=document.getElementById('alumni-body');
+  if(!body)return;
+  body.innerHTML='';
+  data.forEach((s,i)=>{
+    body.innerHTML+=`<tr><td style="color:var(--muted)">${i+1}</td><td style="font-weight:600">${s.name}</td><td>${s.graduated}</td><td>${s.level}</td><td style="color:var(--sky)">${s.occupation}</td></tr>`;
+  });
+}
+function filterTable(tableId,query){
+  document.querySelectorAll(`#${tableId} tbody tr`).forEach(r=>{
+    r.style.display=r.innerText.toLowerCase().includes(query.toLowerCase())?'':'none';
+  });
+}
+function filterByLevel(level){
+  renderStudents(level?db.students.filter(s=>s.level===level):db.students);
+}
+function switchTab(name,e){
+  document.querySelectorAll('.db-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.db-panel').forEach(p=>p.classList.remove('active'));
+  if(e && e.target) e.target.classList.add('active');
+  const panel=document.getElementById('tab-'+name);
+  if(panel) panel.classList.add('active');
+}
+let currentModal='';
+function openModal(type){
+  currentModal=type;
+  const titles={student:'Add New Student',staff:'Add Staff Member',sponsor:'Add New Sponsor'};
+  document.getElementById('modal-title').textContent=titles[type];
+  const forms={
+    student:`<div class="form-row"><div class="form-group"><label>Full Name</label><input id="m-name" type="text" placeholder="Student name"></div><div class="form-group"><label>Level</label><select id="m-level"><option>Nursery</option><option>Primary</option><option>Secondary</option><option>University</option></select></div></div><div class="form-row"><div class="form-group"><label>Year Enrolled</label><input id="m-year" type="number" value="2025"></div><div class="form-group"><label>Sponsor</label><input id="m-sponsor" type="text" placeholder="Sponsor or KCP Fund"></div></div>`,
+    staff:`<div class="form-row"><div class="form-group"><label>Full Name</label><input id="m-name" type="text" placeholder="Staff name"></div><div class="form-group"><label>Role</label><input id="m-role" type="text" placeholder="e.g. Teacher"></div></div><div class="form-row"><div class="form-group"><label>Department</label><select id="m-dept"><option>Education</option><option>Management</option><option>Welfare</option><option>Vocational</option><option>Board</option></select></div><div class="form-group"><label>Year Joined</label><input id="m-year" type="number" value="2025"></div></div>`,
+    sponsor:`<div class="form-group"><label>Sponsor Name</label><input id="m-name" type="text" placeholder="Person or Organisation"></div><div class="form-row"><div class="form-group"><label>Country</label><input id="m-country" type="text" placeholder="e.g. United Kingdom"></div><div class="form-group"><label>Student Sponsored</label><input id="m-student" type="text" placeholder="Student name or General Fund"></div></div>`
+  };
+  document.getElementById('modal-body').innerHTML=forms[type]||'';
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal(){document.getElementById('modal').classList.remove('show');}
+function saveRecord(){
+  const name=document.getElementById('m-name')?.value||'New Record';
+  if(currentModal==='student'){
+    db.students.push({id:db.students.length+1,name,level:document.getElementById('m-level')?.value||'Primary',enrolled:parseInt(document.getElementById('m-year')?.value||2025),sponsor:document.getElementById('m-sponsor')?.value||'KCP Fund',status:'Active'});
+    renderStudents(db.students);
+  } else if(currentModal==='staff'){
+    db.staff.push({id:db.staff.length+1,name,role:document.getElementById('m-role')?.value||'Staff',dept:document.getElementById('m-dept')?.value||'Education',joined:parseInt(document.getElementById('m-year')?.value||2025),status:'Active'});
+    renderStaff(db.staff);
+  } else if(currentModal==='sponsor'){
+    db.sponsors.push({id:db.sponsors.length+1,name,country:document.getElementById('m-country')?.value||'UK',student:document.getElementById('m-student')?.value||'General Fund',since:2025,status:'Active'});
+    renderSponsors(db.sponsors);
+  }
+  closeModal();
+  showToast('Record saved successfully!');
+}
+function editStudent(id){
+  const s=db.students.find(x=>x.id===id);
+  if(!s)return;
+  alert(`Editing: ${s.name}\nLevel: ${s.level}\nEnrolled: ${s.enrolled}\nSponsor: ${s.sponsor}`);
+}
+function exportCSV(type){
+  const data=db[type];
+  const keys=Object.keys(data[0]);
+  const csv=[keys.join(','),...data.map(r=>keys.map(k=>r[k]).join(','))].join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download=`kinamba_${type}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+function showToast(msg){
+  const t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:2rem;right:2rem;background:var(--green);color:white;padding:0.75rem 1.5rem;border-radius:10px;font-size:0.85rem;font-weight:600;z-index:3000;box-shadow:0 4px 20px rgba(0,0,0,0.2);';
+  t.textContent='✓ '+msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3000);
+}
+function selectAmt(btn){
+  document.querySelectorAll('.donate-amt').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+function toggleMenu(){
+  const nav=document.getElementById('nav-links');
+  const open=nav.style.display==='flex';
+  nav.style.display=open?'none':'flex';
+  if(!open){
+    Object.assign(nav.style,{flexDirection:'column',position:'absolute',top:'70px',right:'1rem',background:'white',padding:'1rem',borderRadius:'12px',boxShadow:'0 8px 30px rgba(0,0,0,0.12)',zIndex:'999'});
+  }
+}
+document.querySelectorAll('.nav-links a').forEach(a=>{
+  a.addEventListener('click',()=>{ if(window.innerWidth<=768) document.getElementById('nav-links').style.display='none'; });
+});
+
+// Init DB tables (they'll be hidden until site is shown)
+renderStudents(db.students);
+renderStaff(db.staff);
+renderSponsors(db.sponsors);
+renderAlumni(db.alumni);
+</script>
+</body>
+</html>
